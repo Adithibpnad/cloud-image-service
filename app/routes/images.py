@@ -78,3 +78,17 @@ def download_image(image_id: str, user_id: str):
     return {"download_url": url}
 
 
+@router.delete("/images/{image_id}")
+def delete_image(image_id: str, user_id: str):
+    table = dynamodb.Table(TABLE_NAME)
+
+    table.delete_item(
+        Key={"user_id": user_id, "image_id": image_id}
+    )
+
+    s3.delete_object(
+        Bucket=BUCKET_NAME,
+        Key=f"images/{image_id}"
+    )
+
+    return {"status": "deleted"}
