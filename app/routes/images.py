@@ -54,3 +54,27 @@ def list_images(user_id: str = None, tag: str = None):
 
     return items
 
+@router.get("/images/{image_id}/download")
+def download_image(image_id: str, user_id: str):
+    table = dynamodb.Table(TABLE_NAME)
+
+    response = table.get_item(
+        Key={"user_id": user_id, "image_id": image_id}
+    )
+
+    item = response.get("Item")
+    if not item:
+        return {"error": "Image not found"}
+
+    url = s3.generate_presigned_url(
+        ClientMethod="get_object",
+        Params={
+            "Bucket": BUCKET_NAME,
+            "Key": item["s3_key"]
+        },
+        ExpiresIn=3600
+    )
+
+    return {"download_url": url}
+
+
