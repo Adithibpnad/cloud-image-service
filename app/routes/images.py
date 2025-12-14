@@ -1,11 +1,15 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import uuid
 
-from app.services.s3_service import generate_presigned_upload_url
-from app.services.dynamo_service import save_image_metadata
+from boto3.dynamodb.conditions import Key
 
-router = APIRouter()
+from app.services.s3_service import generate_presigned_upload_url, s3, BUCKET_NAME
+from app.services.dynamo_service import save_image_metadata, dynamodb, TABLE_NAME
+
+
+router = APIRouter(prefix="/images")
+
 
 
 class UploadRequest(BaseModel):
@@ -36,12 +40,9 @@ def upload_image(data: UploadRequest):
         "image_id": image_id,
         "upload_url": upload_url
     }
-@router.get("/images")
-def list_images(user_id: str = None, tag: str = None):
+@router.get("")
+def list_images(user_id: str, tag: str = None):
     table = dynamodb.Table(TABLE_NAME)
-
-    if not user_id:
-        return {"error": "user_id is required"}
 
     response = table.query(
         KeyConditionExpression=Key("user_id").eq(user_id)
@@ -54,7 +55,8 @@ def list_images(user_id: str = None, tag: str = None):
 
     return items
 
-@router.get("/images/{image_id}/download")
+
+@router.get("/{image_id}/download")
 def download_image(image_id: str, user_id: str):
     table = dynamodb.Table(TABLE_NAME)
 
@@ -64,7 +66,7 @@ def download_image(image_id: str, user_id: str):
 
     item = response.get("Item")
     if not item:
-        return {"error": "Image not found"}
+        raise HTTPException(status_code=404, detail="Image not found")
 
     url = s3.generate_presigned_url(
         ClientMethod="get_object",
@@ -78,7 +80,8 @@ def download_image(image_id: str, user_id: str):
     return {"download_url": url}
 
 
-@router.delete("/images/{image_id}")
+
+@router.delete("/{image_id}")
 def delete_image(image_id: str, user_id: str):
     table = dynamodb.Table(TABLE_NAME)
 
