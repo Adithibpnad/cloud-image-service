@@ -2,8 +2,6 @@
 
 This repository was created as part of an internship assignment.
 
-Contributions are not required at this time, but feedback and suggestions are welcome.
-
 ## Development Setup
 - Python 3.10+
 - Docker & Docker Compose
