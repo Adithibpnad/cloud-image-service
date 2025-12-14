@@ -227,6 +227,8 @@ git push
 
 ## License & Contributing
 
-- Add a LICENSE file (e.g., MIT) if you want to open-source.
-- Add CONTRIBUTING.md to describe development workflow and tests.
+This project is licensed under the MIT License.
+For development guidelines, see CONTRIBUTING.md.
+
+
 
