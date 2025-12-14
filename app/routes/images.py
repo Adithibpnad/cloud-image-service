@@ -36,3 +36,21 @@ def upload_image(data: UploadRequest):
         "image_id": image_id,
         "upload_url": upload_url
     }
+@router.get("/images")
+def list_images(user_id: str = None, tag: str = None):
+    table = dynamodb.Table(TABLE_NAME)
+
+    if not user_id:
+        return {"error": "user_id is required"}
+
+    response = table.query(
+        KeyConditionExpression=Key("user_id").eq(user_id)
+    )
+
+    items = response.get("Items", [])
+
+    if tag:
+        items = [item for item in items if tag in item.get("tags", [])]
+
+    return items
+
