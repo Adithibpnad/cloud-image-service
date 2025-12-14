@@ -154,6 +154,11 @@ Response:
   "upload_url": "https://...presigned S3 URL..."
 }
 
+- GET /images
+- GET /images/{id}/download
+- DELETE /images/{id}
+
+
 ### 2. Upload image using presigned URL
 Use the returned upload_url to PUT the file directly to S3:
 
@@ -229,6 +234,7 @@ git push
 
 This project is licensed under the MIT License.
 For development guidelines, see CONTRIBUTING.md.
+
 
 
 
